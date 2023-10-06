@@ -127,6 +127,9 @@ final class MovieQuizViewController: UIViewController {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            // reset the border
+            self.imageView.layer.borderWidth = 0
+            // proceed to the next question or results
             self.showNextQuestionOrResults()
         }
     }
