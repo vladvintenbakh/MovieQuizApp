@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
     
     @IBOutlet private weak var counterLabel: UILabel!
     
@@ -19,6 +19,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionCount: Int = 10
     
     private var questionFactory: QuestionFactoryProtocol? = QuestionFactory()
+    
+    private var alertPresenter: AlertPresenterProtocol? = AlertPresenter()
     
     private var currentQuestion: QuizQuestion?
     
@@ -66,34 +68,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         counterLabel.text = quizStep.questionNumber
     }
     
-    private func show(quizResult: QuizResultsViewModel) {
+    private func show(quizResult: AlertModel) {
+        alertPresenter?.delegate = self
+        alertPresenter?.displayAlert(alertContent: quizResult)
+    }
+    
+    func didShowAlert() {
+        self.currentQuestionIndex = 0
+        self.correctAnswers = 0
         
-        let alert = UIAlertController(
-            title: quizResult.title,
-            message: quizResult.text,
-            preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: quizResult.buttonText, style: .default) { [weak self] _ in
-            // reset the quiz and show the first question
-            guard let self else { return }
-            
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            
-            questionFactory?.requestNextQuestion()
-            
-//            if let firstQuestion = self.questionFactory.requestNextQuestion() {
-//                self.currentQuestion = firstQuestion
-//                let viewModel = self.convert(model: firstQuestion)
-//                self.show(quizStep: viewModel)
-//            }
-//            let initialView = self.convert(model: self.questions[self.currentQuestionIndex])
-//            self.show(quizStep: initialView)
-        }
-        
-        alert.addAction(action)
-        
-        self.present(alert, animated: true, completion: nil)
+        questionFactory?.requestNextQuestion()
     }
     
     @IBAction private func yesButtonPressed(_ sender: Any) {
@@ -145,9 +129,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             "Good job, you answered all \(questionCount) questions correctly!" :
             "Your result: \(correctAnswers)/\(questionCount)"
             
-            let quizResult = QuizResultsViewModel(
+            let quizResult = AlertModel(
                 title: "Quiz round completed",
-                text: text,
+                message: text,
                 buttonText: "Play again")
             show(quizResult: quizResult)
         } else {
