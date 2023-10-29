@@ -22,11 +22,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     private var alertPresenter: AlertPresenterProtocol? = AlertPresenter()
     
+    private var statsService: StatsServiceProtocol = StatsServiceImplementation()
+    
     private var currentQuestion: QuizQuestion?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+//        statsService.totalAccuracy = 0
+//        statsService.bestGame = GameRecord(correct: 0, total: 0, date: Date())
+//        statsService.gamesCount = 0
         
         questionFactory?.delegate = self
         questionFactory?.requestNextQuestion()
@@ -125,9 +131,25 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         if currentQuestionIndex == questionCount - 1 {
             // show the results
-            let text = correctAnswers == questionCount ?
+            var text = ""
+            
+            let currentResult = correctAnswers == questionCount ?
             "Good job, you answered all \(questionCount) questions correctly!" :
             "Your result: \(correctAnswers)/\(questionCount)"
+            text += currentResult
+            
+            statsService.gamesCount += 1
+            let quizzesPlayed = "\nNumber of quizzes played: \(statsService.gamesCount)"
+            text += quizzesPlayed
+            
+            statsService.store(correct: correctAnswers, total: questionCount)
+            let highScore = "\nHigh score: \(statsService.bestGame.correct)/\(statsService.bestGame.total) (\(Date().dateTimeString))"
+            text += highScore
+            
+            statsService.recalculateAccuracy(correct: correctAnswers, total: questionCount)
+            let accuracy = String(format: "%.2f", statsService.totalAccuracy)
+            let averageAccuracy = "\nAverage accuracy: \(accuracy)%"
+            text += averageAccuracy
             
             let quizResult = AlertModel(
                 title: "Quiz round completed",
