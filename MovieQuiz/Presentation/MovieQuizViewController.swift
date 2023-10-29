@@ -30,21 +30,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        statsService.totalAccuracy = 0
-//        statsService.bestGame = GameRecord(correct: 0, total: 0, date: Date())
-//        statsService.gamesCount = 0
-        
         questionFactory?.delegate = self
         questionFactory?.requestNextQuestion()
-
-//        if let firstQuestion = questionFactory.requestNextQuestion() {
-//            currentQuestion = firstQuestion
-//            let viewModel = convert(model: firstQuestion)
-//            show(quizStep: viewModel)
-//        }
-        
-//        let initialView = convert(model: questions[currentQuestionIndex])
-//        show(quizStep: initialView)
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -57,7 +44,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         DispatchQueue.main.async { [weak self] in
             self?.show(quizStep: viewModel)
         }
-//        show(quizStep: viewModel)
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -89,14 +75,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     @IBAction private func yesButtonPressed(_ sender: Any) {
         guard let currentQuestion else { return }
         let isCorrect = currentQuestion.correctAnswer == true
-//        let isCorrect = questions[currentQuestionIndex].correctAnswer == true
         showAnswerResult(isCorrect: isCorrect)
     }
     
     @IBAction private func noButtonPressed(_ sender: Any) {
         guard let currentQuestion else { return }
         let isCorrect = currentQuestion.correctAnswer == false
-//        let isCorrect = questions[currentQuestionIndex].correctAnswer == false
         showAnswerResult(isCorrect: isCorrect)
     }
     
@@ -159,15 +143,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         } else {
             // show the next question
             currentQuestionIndex += 1
-//            if let nextQuestion = questionFactory.requestNextQuestion() {
-//                currentQuestion = nextQuestion
-//                let viewModel = convert(model: nextQuestion)
-//                show(quizStep: viewModel)
-//            }
             questionFactory?.requestNextQuestion()
-            
-//            let questionView = convert(model: questions[currentQuestionIndex])
-//            show(quizStep: questionView)
         }
     }
     
