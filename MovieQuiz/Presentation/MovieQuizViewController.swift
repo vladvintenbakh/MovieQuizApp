@@ -37,9 +37,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         showLoadingIndicator()
         questionFactory?.loadData()
-        
-//        questionFactory?.delegate = self
-//        questionFactory?.requestNextQuestion()
     }
     
     // MARK: - QuestionFactoryDelegate
