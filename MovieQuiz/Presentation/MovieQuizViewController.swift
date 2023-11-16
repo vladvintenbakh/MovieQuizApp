@@ -14,11 +14,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
-    private var currentQuestionIndex = 0
-    
     private var correctAnswers = 0
-    
-    private let questionCount: Int = 10
     
     private var questionFactory: QuestionFactoryProtocol?
     
@@ -27,6 +23,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private var statsService: StatsServiceProtocol = StatsServiceImplementation()
     
     private var currentQuestion: QuizQuestion?
+    
+    private let presenter = MovieQuizPresenter()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -45,7 +43,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         guard let question else { return }
         
         currentQuestion = question
-        let viewModel = convert(model: question)
+        let viewModel = presenter.convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quizStep: viewModel)
         }
@@ -60,13 +58,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         showNetworkError(message: error.localizedDescription)
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let image = UIImage(data: model.image) ?? UIImage()
-        let questionNumber = "\(currentQuestionIndex + 1)/\(questionCount)"
-        return QuizStepViewModel(image: image,
-                                 question: model.text,
-                                 questionNumber: questionNumber)
-    }
+//    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+//        let image = UIImage(data: model.image) ?? UIImage()
+//        let questionNumber = "\(currentQuestionIndex + 1)/\(questionCount)"
+//        return QuizStepViewModel(image: image,
+//                                 question: model.text,
+//                                 questionNumber: questionNumber)
+//    }
     
     private func show(quizStep: QuizStepViewModel) {
         imageView.image = quizStep.image
@@ -80,7 +78,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     
     func didShowAlert() {
-        self.currentQuestionIndex = 0
+        presenter.resetQuestionIndex()
         self.correctAnswers = 0
         
         questionFactory?.requestNextQuestion()
@@ -127,24 +125,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         yesButton.isEnabled = true
         noButton.isEnabled = true
         
-        if currentQuestionIndex == questionCount - 1 {
+        if presenter.isLastQuestion() {
             // show the results
             var text = ""
             
-            let currentResult = correctAnswers == questionCount ?
-            "Good job, you answered all \(questionCount) questions correctly!" :
-            "Your result: \(correctAnswers)/\(questionCount)"
+            let currentResult = correctAnswers == presenter.questionCount ?
+            "Good job, you answered all \(presenter.questionCount) questions correctly!" :
+            "Your result: \(correctAnswers)/\(presenter.questionCount)"
             text += currentResult
             
             statsService.gamesCount += 1
             let quizzesPlayed = "\nNumber of quizzes played: \(statsService.gamesCount)"
             text += quizzesPlayed
             
-            statsService.store(correct: correctAnswers, total: questionCount)
+            statsService.store(correct: correctAnswers, total: presenter.questionCount)
             let highScore = "\nHigh score: \(statsService.bestGame.correct)/\(statsService.bestGame.total) (\(Date().dateTimeString))"
             text += highScore
             
-            statsService.recalculateAccuracy(correct: correctAnswers, total: questionCount)
+            statsService.recalculateAccuracy(correct: correctAnswers, total: presenter.questionCount)
             let accuracy = String(format: "%.2f", statsService.totalAccuracy)
             let averageAccuracy = "\nAverage accuracy: \(accuracy)%"
             text += averageAccuracy
@@ -156,7 +154,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             show(quizResult: quizResult)
         } else {
             // show the next question
-            currentQuestionIndex += 1
+            presenter.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
     }
