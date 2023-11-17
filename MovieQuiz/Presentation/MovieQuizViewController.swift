@@ -22,7 +22,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     private var statsService: StatsServiceProtocol = StatsServiceImplementation()
     
-    private var currentQuestion: QuizQuestion?
+//    private var currentQuestion: QuizQuestion?
     
     private let presenter = MovieQuizPresenter()
     
@@ -42,13 +42,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     // MARK: - QuestionFactoryDelegate
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question else { return }
-        
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quizStep: viewModel)
-        }
+//        guard let question else { return }
+//
+//        currentQuestion = question
+//        let viewModel = presenter.convert(model: question)
+//        DispatchQueue.main.async { [weak self] in
+//            self?.show(quizStep: viewModel)
+//        }
+        presenter.didReceiveNextQuestion(question: question)
     }
     
     func didLoadDataFromServer() {
@@ -68,7 +69,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 //                                 questionNumber: questionNumber)
 //    }
     
-    private func show(quizStep: QuizStepViewModel) {
+    func show(quizStep: QuizStepViewModel) {
         imageView.image = quizStep.image
         textLabel.text = quizStep.question
         counterLabel.text = quizStep.questionNumber
@@ -90,7 +91,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 //        guard let currentQuestion else { return }
 //        let isCorrect = currentQuestion.correctAnswer == true
 //        showAnswerResult(isCorrect: isCorrect)
-        presenter.currentQuestion = currentQuestion
         presenter.yesButtonPressed()
     }
     
@@ -98,7 +98,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 //        guard let currentQuestion else { return }
 //        let isCorrect = currentQuestion.correctAnswer == false
 //        showAnswerResult(isCorrect: isCorrect)
-        presenter.currentQuestion = currentQuestion
         presenter.noButtonPressed()
     }
     

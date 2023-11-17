@@ -35,14 +35,26 @@ final class MovieQuizPresenter {
     }
     
     func yesButtonPressed() {
-        guard let currentQuestion else { return }
-        let isCorrect = currentQuestion.correctAnswer == true
-        viewController?.showAnswerResult(isCorrect: isCorrect)
+        didAnswer(isYes: true)
     }
     
     func noButtonPressed() {
+        didAnswer(isYes: false)
+    }
+    
+    private func didAnswer(isYes: Bool) {
         guard let currentQuestion else { return }
-        let isCorrect = currentQuestion.correctAnswer == false
+        let isCorrect = currentQuestion.correctAnswer == isYes
         viewController?.showAnswerResult(isCorrect: isCorrect)
+    }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question else { return }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quizStep: viewModel)
+        }
     }
 }
