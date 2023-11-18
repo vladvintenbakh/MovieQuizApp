@@ -9,12 +9,12 @@ import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
-    let questionCount = 10
+    private let questionCount = 10
     private var currentQuestionIndex = 0
-    var currentQuestion: QuizQuestion?
+    private var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
-    var correctAnswers = 0
-    var questionFactory: QuestionFactoryProtocol?
+    private var correctAnswers = 0
+    private var questionFactory: QuestionFactoryProtocol?
     private let statsService: StatsServiceProtocol!
     
     init() {
@@ -60,7 +60,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func switchToNextQuestion() {
         currentQuestionIndex += 1
-//        questionFactory?.requestNextQuestion()
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -99,19 +98,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             // show the results
             let text = makeResultsMessage()
             
-//            statsService.gamesCount += 1
-//            let quizzesPlayed = "\nNumber of quizzes played: \(statsService.gamesCount)"
-//            text += quizzesPlayed
-//
-//            statsService.store(correct: correctAnswers, total: presenter.questionCount)
-//            let highScore = "\nHigh score: \(statsService.bestGame.correct)/\(statsService.bestGame.total) (\(Date().dateTimeString))"
-//            text += highScore
-//
-//            statsService.recalculateAccuracy(correct: correctAnswers, total: presenter.questionCount)
-//            let accuracy = String(format: "%.2f", statsService.totalAccuracy)
-//            let averageAccuracy = "\nAverage accuracy: \(accuracy)%"
-//            text += averageAccuracy
-            
             let quizResult = AlertModel(
                 title: "Quiz round completed",
                 message: text,
@@ -123,19 +109,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             questionFactory?.requestNextQuestion()
         }
     }
-    
-//            statsService.gamesCount += 1
-//            let quizzesPlayed = "\nNumber of quizzes played: \(statsService.gamesCount)"
-//            text += quizzesPlayed
-//
-//            statsService.store(correct: correctAnswers, total: presenter.questionCount)
-//            let highScore = "\nHigh score: \(statsService.bestGame.correct)/\(statsService.bestGame.total) (\(Date().dateTimeString))"
-//            text += highScore
-//
-//            statsService.recalculateAccuracy(correct: correctAnswers, total: presenter.questionCount)
-//            let accuracy = String(format: "%.2f", statsService.totalAccuracy)
-//            let averageAccuracy = "\nAverage accuracy: \(accuracy)%"
-//            text += averageAccuracy
     
     func makeResultsMessage() -> String {
         statsService.store(correct: correctAnswers, total: questionCount)
