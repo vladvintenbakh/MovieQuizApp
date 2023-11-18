@@ -82,7 +82,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private func didAnswer(isYes: Bool) {
         guard let currentQuestion else { return }
         let isCorrect = currentQuestion.correctAnswer == isYes
-        viewController?.showAnswerResult(isCorrect: isCorrect)
+        proceedWithAnswer(isCorrect: isCorrect)
     }
     
     func didAnswer(isCorrect: Bool) {
@@ -91,7 +91,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
         
         viewController?.enableButtons()
         
@@ -153,5 +153,22 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         ].joined(separator: "\n")
 
         return finalMessage
+    }
+    
+    func proceedWithAnswer(isCorrect: Bool) {
+        
+        viewController?.disableButtons()
+        
+        didAnswer(isCorrect: isCorrect)
+        
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self else { return }
+            // reset the border
+            viewController?.resetImageBorder()
+            // proceed to the next question or results
+            self.proceedToNextQuestionOrResults()
+        }
     }
 }
