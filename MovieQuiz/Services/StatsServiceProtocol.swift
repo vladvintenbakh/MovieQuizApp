@@ -8,9 +8,8 @@
 import Foundation
 
 protocol StatsServiceProtocol {
-    var totalAccuracy: Double { get set }
-    var gamesCount: Int { get set }
-    var bestGame: GameRecord { get set }
+    var totalAccuracy: Double { get }
+    var gamesCount: Int { get }
+    var bestGame: GameRecord { get }
     func store(correct: Int, total: Int)
-    func recalculateAccuracy(correct: Int, total: Int)
 }

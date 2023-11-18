@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     
     @IBOutlet private weak var counterLabel: UILabel!
     
@@ -14,13 +14,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
-    private var correctAnswers = 0
+//    private var correctAnswers = 0 // moved
     
-    private var questionFactory: QuestionFactoryProtocol?
+//    private var questionFactory: QuestionFactoryProtocol? // moved
     
     private var alertPresenter: AlertPresenterProtocol? = AlertPresenter()
     
-    private var statsService: StatsServiceProtocol = StatsServiceImplementation()
+//    private var statsService: StatsServiceProtocol = StatsServiceImplementation()
     
 //    private var currentQuestion: QuizQuestion?
     
@@ -32,16 +32,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         presenter.viewController = self
         
-        questionFactory = QuestionFactory(moviesLoader: MovieLoader(),
-                                          delegate: self)
+//        questionFactory = QuestionFactory(moviesLoader: MovieLoader(),
+//                                          delegate: self)
         
         showLoadingIndicator()
-        questionFactory?.loadData()
+//        questionFactory?.loadData()
     }
     
-    // MARK: - QuestionFactoryDelegate
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
+//    func didReceiveNextQuestion(question: QuizQuestion?) {
 //        guard let question else { return }
 //
 //        currentQuestion = question
@@ -49,17 +47,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 //        DispatchQueue.main.async { [weak self] in
 //            self?.show(quizStep: viewModel)
 //        }
-        presenter.didReceiveNextQuestion(question: question)
-    }
+//        presenter.didReceiveNextQuestion(question: question)
+//    }
     
-    func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
-        questionFactory?.requestNextQuestion()
-    }
+//    func didLoadDataFromServer() {
+//        activityIndicator.isHidden = true
+//        questionFactory?.requestNextQuestion()
+//    }
 
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
-    }
+//    func didFailToLoadData(with error: Error) {
+//        showNetworkError(message: error.localizedDescription)
+//    }
     
 //    private func convert(model: QuizQuestion) -> QuizStepViewModel {
 //        let image = UIImage(data: model.image) ?? UIImage()
@@ -75,16 +73,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         counterLabel.text = quizStep.questionNumber
     }
     
-    private func show(quizResult: AlertModel) {
+    func show(quizResult: AlertModel) {        
         alertPresenter?.delegate = self
         alertPresenter?.displayAlert(alertContent: quizResult)
     }
     
     func didShowAlert() {
-        presenter.resetQuestionIndex()
-        self.correctAnswers = 0
+        presenter.restartGame()
+//        self.correctAnswers = 0
         
-        questionFactory?.requestNextQuestion()
+//        questionFactory?.requestNextQuestion()
     }
     
     @IBAction private func yesButtonPressed(_ sender: Any) {
@@ -101,6 +99,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         presenter.noButtonPressed()
     }
     
+    func enableButtons() {
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+    }
+    
     func showAnswerResult(isCorrect: Bool) {
         
         yesButton.isEnabled = false
@@ -109,72 +112,58 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         
+        presenter.didAnswer(isCorrect: isCorrect)
+        
         if isCorrect {
             imageView.layer.borderColor = UIColor.ypGreen.cgColor
-            self.correctAnswers += 1
+//            self.correctAnswers += 1
         } else {
             imageView.layer.borderColor = UIColor.ypRed.cgColor
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self else { return }
+//            self.presenter.correctAnswers = correctAnswers
+//            self.presenter.questionFactory = questionFactory
             // reset the border
             self.imageView.layer.borderWidth = 0
             // proceed to the next question or results
-            self.showNextQuestionOrResults()
+            self.presenter.showNextQuestionOrResults()
         }
     }
     
-    private func showNextQuestionOrResults() {
-        
-        yesButton.isEnabled = true
-        noButton.isEnabled = true
-        
-        if presenter.isLastQuestion() {
-            // show the results
-            var text = ""
-            
-            let currentResult = correctAnswers == presenter.questionCount ?
-            "Good job, you answered all \(presenter.questionCount) questions correctly!" :
-            "Your result: \(correctAnswers)/\(presenter.questionCount)"
-            text += currentResult
-            
-            statsService.gamesCount += 1
-            let quizzesPlayed = "\nNumber of quizzes played: \(statsService.gamesCount)"
-            text += quizzesPlayed
-            
-            statsService.store(correct: correctAnswers, total: presenter.questionCount)
-            let highScore = "\nHigh score: \(statsService.bestGame.correct)/\(statsService.bestGame.total) (\(Date().dateTimeString))"
-            text += highScore
-            
-            statsService.recalculateAccuracy(correct: correctAnswers, total: presenter.questionCount)
-            let accuracy = String(format: "%.2f", statsService.totalAccuracy)
-            let averageAccuracy = "\nAverage accuracy: \(accuracy)%"
-            text += averageAccuracy
-            
-            let quizResult = AlertModel(
-                title: "Quiz round completed",
-                message: text,
-                buttonText: "Play again")
-            show(quizResult: quizResult)
-        } else {
-            // show the next question
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
-    }
+//    private func showNextQuestionOrResults() {
+//
+//        yesButton.isEnabled = true
+//        noButton.isEnabled = true
+//
+//        if presenter.isLastQuestion() {
+//            // show the results
+//            let text = presenter.makeResultsMessage()
+//
+//            let quizResult = AlertModel(
+//                title: "Quiz round completed",
+//                message: text,
+//                buttonText: "Play again")
+//            show(quizResult: quizResult)
+//        } else {
+//            // show the next question
+//            presenter.switchToNextQuestion()
+//            questionFactory?.requestNextQuestion()
+//        }
+//    }
     
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
-    private func hideLoadingIndicator() {
+    func hideLoadingIndicator() {
         activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
-    private func showNetworkError(message: String) {
+    func showNetworkError(message: String) {
         hideLoadingIndicator()
         
         let alert = AlertModel(
