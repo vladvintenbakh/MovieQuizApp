@@ -12,7 +12,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private let questionCount = 10
     private var currentQuestionIndex = 0
     private var currentQuestion: QuizQuestion?
-    weak var viewController: MovieQuizViewController?
+    weak var viewController: MovieQuizViewControllerProtocol?
     private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
     private let statsService: StatsServiceProtocol!
