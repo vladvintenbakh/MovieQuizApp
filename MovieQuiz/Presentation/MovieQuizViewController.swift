@@ -22,6 +22,7 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, M
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        alertPresenter?.delegate = self
         presenter.viewController = self
         
         showLoadingIndicator()
@@ -33,8 +34,7 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, M
         counterLabel.text = quizStep.questionNumber
     }
     
-    func show(quizResult: AlertModel) {        
-        alertPresenter?.delegate = self
+    func show(quizResult: AlertModel) {
         alertPresenter?.displayAlert(alertContent: quizResult)
     }
     
@@ -75,7 +75,7 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, M
     }
     
     func resetImageBorder() {
-        self.imageView.layer.borderWidth = 0
+        imageView.layer.borderWidth = 0
     }
     
     func showLoadingIndicator() {

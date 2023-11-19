@@ -9,10 +9,11 @@ import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
+    weak var viewController: MovieQuizViewControllerProtocol?
+    
     private let questionCount = 10
     private var currentQuestionIndex = 0
     private var currentQuestion: QuizQuestion?
-    weak var viewController: MovieQuizViewControllerProtocol?
     private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
     private let statsService: StatsServiceProtocol!
@@ -48,18 +49,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func isLastQuestion() -> Bool {
-        currentQuestionIndex == questionCount - 1
-    }
-    
     func restartGame() {
         correctAnswers = 0
         currentQuestionIndex = 0
         questionFactory?.requestNextQuestion()
-    }
-    
-    func switchToNextQuestion() {
-        currentQuestionIndex += 1
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -78,12 +71,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         didAnswer(isYes: false)
     }
     
-    private func didAnswer(isYes: Bool) {
-        guard let currentQuestion else { return }
-        let isCorrect = currentQuestion.correctAnswer == isYes
-        proceedWithAnswer(isCorrect: isCorrect)
-    }
-    
     func didAnswer(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
@@ -94,7 +81,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         viewController?.enableButtons()
         
-        if self.isLastQuestion() {
+        if isLastQuestion() {
             // show the results
             let text = makeResultsMessage()
             
@@ -108,24 +95,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             self.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
-    }
-    
-    func makeResultsMessage() -> String {
-        statsService.store(correct: correctAnswers, total: questionCount)
-
-        let bestGame = statsService.bestGame
-
-        let quizzesPlayed = "Number of quizzes played: \(statsService.gamesCount)"
-        let currentResult = "Your result: \(correctAnswers)/\(questionCount)"
-        var highScore = "High score: \(bestGame.correct)/\(bestGame.total)"
-        highScore += " (\(bestGame.date.dateTimeString))"
-        let averageAccuracy = "Average accuracy: \(String(format: "%.2f", statsService.totalAccuracy))%"
-
-        let finalMessage = [
-            quizzesPlayed, currentResult, highScore, averageAccuracy
-        ].joined(separator: "\n")
-
-        return finalMessage
     }
     
     func proceedWithAnswer(isCorrect: Bool) {
@@ -143,5 +112,37 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             // proceed to the next question or results
             self.proceedToNextQuestionOrResults()
         }
+    }
+    
+    private func didAnswer(isYes: Bool) {
+        guard let currentQuestion else { return }
+        let isCorrect = currentQuestion.correctAnswer == isYes
+        proceedWithAnswer(isCorrect: isCorrect)
+    }
+    
+    private func isLastQuestion() -> Bool {
+        currentQuestionIndex == questionCount - 1
+    }
+    
+    private func switchToNextQuestion() {
+        currentQuestionIndex += 1
+    }
+    
+    private func makeResultsMessage() -> String {
+        statsService.store(correct: correctAnswers, total: questionCount)
+
+        let bestGame = statsService.bestGame
+
+        let quizzesPlayed = "Number of quizzes played: \(statsService.gamesCount)"
+        let currentResult = "Your result: \(correctAnswers)/\(questionCount)"
+        var highScore = "High score: \(bestGame.correct)/\(bestGame.total)"
+        highScore += " (\(bestGame.date.dateTimeString))"
+        let averageAccuracy = "Average accuracy: \(String(format: "%.2f", statsService.totalAccuracy))%"
+
+        let finalMessage = [
+            quizzesPlayed, currentResult, highScore, averageAccuracy
+        ].joined(separator: "\n")
+
+        return finalMessage
     }
 }
