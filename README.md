@@ -2,9 +2,9 @@
 
 MovieQuiz is a quiz app to test one's knowledge of the 250 top-rated movies according to IMDb.
 
-## **Links**
-
 [Screencast](https://github.com/user-attachments/assets/912b052d-aaee-4018-a8d1-d04abcca7292)
+
+## **Links**
 
 [Figma Design](https://www.figma.com/file/l0IMG3Eys35fUrbvArtwsR/YP-Quiz?node-id=34%3A243)
 
