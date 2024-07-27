@@ -53,8 +53,19 @@ final class QuestionFactory: QuestionFactoryProtocol {
             
             let rating = Float(movie.rating) ?? 0
             
-            let text = "Is the rating of this movie greater than 8.5?"
-            let correctAnswer = rating > 8.5
+            let adjustedRating = rating + Float.random(in: -0.5...0.5)
+            let adjustedRatingString = String(format: "%.1f", adjustedRating)
+            
+            let comparisonOperator = ["greater", "less"].randomElement()!
+            
+            let text = "Is this movie's rating \(comparisonOperator) than \(adjustedRatingString)?"
+            
+            var correctAnswer: Bool
+            if comparisonOperator == "greater" {
+                correctAnswer = rating > adjustedRating
+            } else {
+                correctAnswer = rating <= adjustedRating
+            }
             
             let question = QuizQuestion(image: imageData, text: text, correctAnswer: correctAnswer)
             
