@@ -4,6 +4,8 @@ MovieQuiz is a quiz app to test one's knowledge of the 250 top-rated movies acco
 
 ## **Links**
 
+[Screencast](https://github.com/user-attachments/assets/912b052d-aaee-4018-a8d1-d04abcca7292)
+
 [Figma Design](https://www.figma.com/file/l0IMG3Eys35fUrbvArtwsR/YP-Quiz?node-id=34%3A243)
 
 [IMDb API](https://developer.imdb.com/documentation/api-documentation/?ref_=/documentation/_PAGE_BODY)
